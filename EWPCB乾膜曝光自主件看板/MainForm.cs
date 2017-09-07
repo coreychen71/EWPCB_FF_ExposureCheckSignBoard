@@ -34,9 +34,9 @@ namespace EWPCB乾膜曝光自主件看板
             srcData.Clear();
             writeLog = File.AppendText(LogPath);
             strComm = "select partnum as '料號', ISNULL(machineno,'0') + '-' + ISNULL(empname,'') as '曝光手', " +
-                "workqnty as '檢修數',ISNULL(qcresult, '') as '結果', ISNULL(qcman, '') as '檢驗人', " +
-                "CONVERT(char(19), starttime, 120) as '放板時間', CONVERT(char(19), endtime, 120) as '結束時間' " +
-                "from drymcse where departname = 'FF' and process = '自主件' and todo = 1 and " +
+                "workqnty as '曝光數', CONVERT(char(19), starttime, 120) as '曝光時間', " +
+                "CONVERT(char(19), vrs, 120) as 'VRS時間', ISNULL(REPLACE(vrsman,' ',''), '') as 'VRS人員'," +
+                "ISNULL(qcresult, '') as '結果' from drymcse where departname = 'FF' and process = '自主件' and todo = 1 and " +
                 "starttime >= '" + date + "' order by starttime desc";
             using (SqlConnection sqlcon = new SqlConnection(strCon))
             {
@@ -66,11 +66,11 @@ namespace EWPCB乾膜曝光自主件看板
             dgvData.RowHeadersWidth = 70;
             dgvData.Columns["料號"].Width = 285;
             dgvData.Columns["曝光手"].Width = 195;
-            dgvData.Columns["檢修數"].Width = 175;
+            dgvData.Columns["曝光數"].Width = 165;
+            dgvData.Columns["曝光時間"].Width = 400;
+            dgvData.Columns["VRS時間"].Width = 400;
+            dgvData.Columns["VRS人員"].Width = 190;
             dgvData.Columns["結果"].Width = 250;
-            dgvData.Columns["檢驗人"].Width = 200;
-            dgvData.Columns["放板時間"].Width = 400;
-            dgvData.Columns["結束時間"].Width = 400;
             dgvData.DataBindingComplete += ChangRowColor;
         }
 
@@ -79,7 +79,8 @@ namespace EWPCB乾膜曝光自主件看板
         {
             foreach (DataGridViewRow row in dgvData.Rows)
             {
-                if (row.Cells["結果"].Value.ToString().Trim().ToUpper() == "OK")
+                if (string.IsNullOrWhiteSpace(row.Cells["結果"].Value.ToString()) & 
+                    !string.IsNullOrWhiteSpace(row.Cells["VRS時間"].Value.ToString()))
                 {
                     row.DefaultCellStyle.BackColor = Color.Lime;
                     row.DefaultCellStyle.SelectionBackColor = Color.Lime;
