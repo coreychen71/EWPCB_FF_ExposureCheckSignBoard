@@ -61,6 +61,16 @@ namespace EWPCB乾膜曝光自主件看板
                     }
                 }
             }
+
+            //檢查是否進2D工序
+            foreach (DataRow row in srcData.Rows)
+            {
+                if (Check2D(row["料號"].ToString()))
+                {
+                    row["結果"] += @"/2D";
+                }
+            }
+
             //1920*1080 only 43" TV
             dgvData.DataSource = srcData;
             dgvData.RowHeadersWidth = 70;
@@ -130,6 +140,40 @@ namespace EWPCB乾膜曝光自主件看板
                 clock = setTime;
                 Text = "乾膜曝光自主件檢驗看板(" + clock + ") - " + updateTime.ToString("yyyy-MM-dd HH:mm:ss");
             }
+        }
+
+        /// <summary>
+        /// 檢查料號在二天內有無被申報過2D工序，若有傳回true，表示底片漲縮需進2D掃描
+        /// </summary>
+        /// <param name="PartNum">料號</param>
+        /// <returns></returns>
+        private bool Check2D(string PartNum)
+        {
+            var Result = false;
+            var strComm = "select * from drymcse where departname='FF' and process='2D' and " +
+                "partnum='" + PartNum + "' and starttime > DATEADD(DAY, -1, sysdatetime())";
+            using (SqlConnection sqlcon = new SqlConnection(strCon))
+            {
+                using (SqlCommand sqlcomm = new SqlCommand(strComm, sqlcon))
+                {
+                    try
+                    {
+                        sqlcon.Open();
+                        SqlDataReader reader = sqlcomm.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            Result = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        writeLog.WriteLine(updateTime + "     " + ex.Message);
+                        writeLog.Flush();
+                        writeLog.Close();
+                    }
+                }
+            }
+            return Result;
         }
     }
 }
