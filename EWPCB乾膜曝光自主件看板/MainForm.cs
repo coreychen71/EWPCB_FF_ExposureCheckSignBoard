@@ -62,12 +62,15 @@ namespace EWPCB乾膜曝光自主件看板
                 }
             }
 
+            //先將DataTable[結果]欄位的唯讀取消
+            srcData.Columns["結果"].ReadOnly = false;
+
             //檢查是否進2D工序
-            foreach (DataRow row in srcData.Rows)
+            for (int i = 0; i < srcData.Rows.Count; i++)
             {
-                if (Check2D(row["料號"].ToString()))
+                if (Check2D(srcData.Rows[i]["料號"].ToString()))
                 {
-                    row["結果"] += @"/2D";
+                    srcData.Rows[i]["結果"] = "2D";
                 }
             }
 
