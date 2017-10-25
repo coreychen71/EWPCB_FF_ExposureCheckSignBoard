@@ -13,7 +13,7 @@ namespace EWPCB乾膜曝光自主件看板
         string strComm = "";
         string LogPath = Directory.GetCurrentDirectory() + @"\ErrLog.txt";
         DataTable srcData = new DataTable();
-        DateTime date = DateTime.Now;
+        DateTime date = DateTime.Now.AddDays(-2);
         DateTime updateTime = DateTime.Now;
         int setTime = 180;
         int clock = 0;
